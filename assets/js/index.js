@@ -1,85 +1,84 @@
-let getCountry = [];
-let row = document.querySelector("#country");
+let ok = document.querySelector("#ok");
+let back = document.querySelector("#back");
+let input = document.getElementById("display");
+let IAgree = document.querySelector("#IAgree");
+let number = document.querySelectorAll("#number");
 
-const input = document.querySelector("input");
-const select = document.querySelector("select");
-const loader = document.querySelector(".loader");
-const container = document.querySelector(".container");
+let count = 1;
+let MaxOfNumber = null;
+let RandomNumber = null;
+let NumberOfAttempts = null;
 
-function getCountryHtml(i) {
-  row.innerHTML += `
-    <div class="col">
-        <div class="card">
-            <img src="${i?.flags.svg}" height="250" class="card-img-top" alt="">
-            <div class="card-body">
-                <h5 class="card-title">${i.name.common}</h5>
-                <p class="card-text">${i.capital ? i.capital : ""}</p>
-                <a href="detail.html?country=${
-                  i.name.common
-                }" class="btn btn-primary">Read More</a>
-            </div>
-        </div>
-    </div>
-`;
-}
+const ChooseRandomNumber = (max) => Math.floor(Math.random() * max);
 
-function getFetch() {
-  const data = JSON.parse(localStorage.getItem("country"));
-  if (data) {
-    container.classList.remove("blur");
-    loader.classList.add("d-none");
-    return addCountry(data, "", select.value);
-  }
+const AlertFunc = (spanInnerHTML, typeAlert, load) => {
+  const alert = document.querySelector(".alert");
 
-  fetch("https://restcountries.com/v3.1/all")
-    .then((res) => res.json())
-    .then((res) => {
-      addCountry(res, "", select.value);
-      localStorage.setItem("country", JSON.stringify(res));
-      container.classList.remove("blur");
-      loader.classList.add("d-none");
-    })
-    .catch((err) => {
-      console.log(err);
-      container.classList.remove("blur");
-      loader.classList.add("d-none");
-    });
-}
+  const span = document.createElement("span");
+  span.innerHTML = spanInnerHTML;
+  alert.append(span);
 
-function addCountry(data, value, selected) {
-  switch (selected) {
-    case "default":
-      data
-        .filter((j) => j.name.common.toUpperCase().search(value) >= 0)
-        .map((i) => getCountryHtml(i));
-      break;
-    case "A-Z":
-      data
-        .sort((a, b) => a.name.common.localeCompare(b.name.common))
-        .filter((j) => j.name.common.toUpperCase().search(value) >= 0)
-        .map((i) => getCountryHtml(i));
+  alert.classList.add(`show`, typeAlert);
 
-      break;
-    case "Z-A":
-      data
-        .sort((a, b) => b.name.common.localeCompare(a.name.common))
-        .filter((j) => j.name.common.toUpperCase().search(value) >= 0)
-        .map((i) => getCountryHtml(i));
+  setTimeout(() => {
+    alert.classList.remove(`show`, typeAlert);
 
-      break;
-  }
-}
+    if (load) window.location.reload();
 
-input.addEventListener("keydown", ({ target }) => {
-  const data = JSON.parse(localStorage.getItem("country"));
-  row.innerHTML = "";
-  addCountry(data, target.value.toUpperCase(), select.value);
+    let child = document.querySelector("span");
+    alert.removeChild(child);
+  }, 2000);
+};
+
+for (let i of number)
+  i.addEventListener("click", () => (input.innerText += i.textContent));
+
+back.addEventListener("click", () => input.textContent = input.textContent.slice(0, -1));
+
+IAgree.addEventListener("click", () => {
+  const card = document.querySelector(".card");
+  const modal = document.querySelector(".modal");
+
+  card.classList.remove("blur");
+  modal.classList.remove("show");
+
+  NumberOfAttempts = document.querySelector("#NumberOfAttempts").value;
+  MaxOfNumber = document.querySelector("#MaxOfNumber").value;
+
+  RandomNumber = ChooseRandomNumber(Number(MaxOfNumber));
 });
 
-select.addEventListener("change", ({ target }) => {
-  const data = JSON.parse(localStorage.getItem("country"));
-  row.innerHTML = "";
-  addCountry(data, "", target.value);
+ok.addEventListener("click", () => {
+  if (NumberOfAttempts != null && MaxOfNumber != null && RandomNumber != null) {
+    if (NumberOfAttempts > 0) {
+      if (input.textContent == RandomNumber) {
+        AlertFunc(
+          `<strong>You Win !</strong> Siz yutingiz ${count} ta urunishda`,
+          `alert-success`,
+          true
+        );
+      } else if (Number(input.textContent) > RandomNumber) {
+        AlertFunc(
+          `<strong>You Find !</strong> Sizni kiritgan soningiz katta men o'ylagan sondan. Urunishlar soni ${count} ta`,
+          `alert-warning`,
+          false
+        );
+      } else if (Number(input.textContent) < RandomNumber) {
+        AlertFunc(
+          `<strong>You Find !</strong> Sizni kiritgan soningiz kichik men o'ylagan sondan. Urunishlar soni ${count} ta`,
+          `alert-warning`,
+          false
+        );
+      }
+    } else {
+      AlertFunc(
+        `<strong>You Lose !</strong> Siz men o'ylagan soni topa olmadingiz. Men o'ylagan son ${RandomNumber}`,
+        `alert-danger`,
+        true
+      );
+    }
+  }
+  count++;
+  NumberOfAttempts--;
+  input.textContent = "";
 });
-
-getFetch();
