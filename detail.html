@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Information Detail Of </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+    <div class="container">
+        <a href="./index.html" class="btn btn-primary my-3 d-inline-block"><i class="fa-solid fa-arrow-left"></i> Back
+        </a>
+        <table id="table" class="table border table-striped text-uppercase"></table>
+    </div>
+
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const country = urlParams.get('country');
+        document.title += " " + country
+
+        const table = document.querySelector('#table');
+        fetch(`https://restcountries.com/v3.1/name/${country}`)
+            .then((res) => res.json())
+            .then((res) => putCountry(res[0]))
+            .catch((err) => console.log(err))
+
+        function putCountry(obj) {
+            console.log(obj);
+            let lat = obj.latlng[0]
+            let lng = obj.latlng[1]
+            console.log(lat, lng);
+            let currenciesCode = Object.keys(obj.currencies)
+            table.innerHTML = `
+                <tr>
+                    <th style="white-space: nowrap;">Name</th>
+                    <th style="white-space: nowrap;">${obj?.name.common}</th>
+                </tr>
+                <tr>
+                    <th style="white-space: nowrap;">Capital</th>
+                    <th style="white-space: nowrap;">${obj?.capital}</th>
+                </tr>
+                <tr>
+                    <th style="white-space: nowrap;">Area</th>
+                    <th style="white-space: nowrap;">${obj?.area} (km)<sup>2</sup></th>
+                </tr>
+                <tr>
+                    <th style="white-space: nowrap;">continents</th>
+                    <th style="white-space: nowrap;">${obj?.continents}</th>
+                </tr>
+                <tr>
+                    <th style="white-space: nowrap;">region</th>
+                    <th style="white-space: nowrap;">${obj?.region}</th>
+                </tr>
+                <tr>
+                    <th style="white-space: nowrap;">subregion</th>
+                    <th style="white-space: nowrap;">${obj?.subregion}</th>
+                </tr>
+                <tr>
+                    <th style="white-space: nowrap;">currencies</th>
+                    <th style="white-space: nowrap;">${obj?.currencies[currenciesCode].name}</th>
+                </tr>
+                <tr>
+                    <th style="white-space: nowrap;">flags</th>
+                    <th style="white-space: nowrap;">
+                        <img class="img-thumbnail" src="${obj?.flags.svg}" width="300" height="300" alt="" />    
+                    </th>
+                </tr>
+                <tr>
+                    <th style="white-space: nowrap;">coat Of Arms</th>
+                    <th style="white-space: nowrap;">
+                        <img class="img-thumbnail" src="${obj?.coatOfArms.svg}" width="300" height="300" alt="" />     
+                    </th>
+                </tr>
+                <tr>
+                    <th style="white-space: nowrap;">independent</th>
+                    <th style="white-space: nowrap;">${obj?.independent ? "Yes" : "No"}</th>
+                </tr>
+                <tr>
+                    <th style="white-space: nowrap;">startOfWeek</th>
+                    <th style="white-space: nowrap;">${obj?.startOfWeek}</th>
+                </tr>
+                <tr>
+                    <th style="white-space: nowrap;">population</th>
+                    <th style="white-space: nowrap;">${obj?.population}</th>
+                </tr>
+                <tr>
+                    <th style="white-space: nowrap;">Time Zone</th>
+                    <th style="white-space: nowrap;">${obj?.timezones}</th>
+                </tr>
+                <tr>
+                    <th style="white-space: nowrap;">maps</th>
+                    <th style="white-space: nowrap;">
+                        <iframe width="400" height="400" src="https://www.openstreetmap.org/export/embed.html?bbox=${lat}%2C${lng}%2C${lng}%2C${lat}&amp;layer=mapnik&amp;marker=${lat}%2C${lng}" style="border: 1px solid black"></iframe>
+                    </th>
+                </tr>
+            `
+        }
+
+    </script>
+</body>
+
+</html>
